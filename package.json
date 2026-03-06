@@ -1,0 +1,39 @@
+{
+  "name": "@clawrss/openclaw-rss",
+  "version": "2026.3.7",
+  "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "src",
+    "scripts",
+    "skills",
+    "openclaw.plugin.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "openclaw": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "test": "node --test --import tsx tests/*.test.ts",
+    "check": "npm run lint && npm run test",
+    "pack:release": "mkdir -p dist && npm pack --pack-destination dist"
+  },
+  "dependencies": {
+    "marked": "^16.4.1",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.9",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

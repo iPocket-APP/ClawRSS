@@ -1,0 +1,7 @@
+interface:
+  display_name: "Install ClawRSS"
+  short_description: "Install the ClawRSS Gateway plugin"
+  default_prompt: "Use $install-clawrss to install and configure the ClawRSS OpenClaw plugin."
+
+policy:
+  allow_implicit_invocation: true
