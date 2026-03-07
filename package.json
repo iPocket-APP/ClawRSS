@@ -3,6 +3,14 @@
   "version": "2026.3.8",
   "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iPocket-APP/ClawRSS"
+  },
+  "homepage": "https://github.com/iPocket-APP/ClawRSS",
+  "bugs": {
+    "url": "https://github.com/iPocket-APP/ClawRSS/issues"
+  },
   "type": "module",
   "main": "src/index.ts",
   "files": [
