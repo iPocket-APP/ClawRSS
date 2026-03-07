@@ -19,7 +19,7 @@ It is separate from the actual Gateway plugin.
 
 The skill tells OpenClaw how to map that request to:
 
-- npm package: `@clawrss/openclaw-rss`
+- npm package: `@ipocket/clawrss`
 - plugin id: `openclaw-rss`
 
 ## Skill location
@@ -33,11 +33,11 @@ The standalone skill lives here:
 
 Verify:
 
-1. The npm package `@clawrss/openclaw-rss` exists.
+1. The npm package `@ipocket/clawrss` exists.
 2. The plugin install command is correct:
 
 ```bash
-openclaw plugins install @clawrss/openclaw-rss
+openclaw plugins install @ipocket/clawrss
 ```
 
 3. The skill text still matches the real installation flow.

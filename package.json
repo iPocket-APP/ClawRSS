@@ -1,6 +1,6 @@
 {
-  "name": "@clawrss/openclaw-rss",
-  "version": "2026.3.7",
+  "name": "@ipocket/clawrss",
+  "version": "2026.3.8",
   "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
   "license": "MIT",
   "type": "module",
@@ -9,6 +9,8 @@
     "src",
     "scripts",
     "skills",
+    "clawhub-skills",
+    "docs",
     "openclaw.plugin.json",
     "README.md",
     "LICENSE"

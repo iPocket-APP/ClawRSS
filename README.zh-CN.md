@@ -1,4 +1,4 @@
-# @clawrss/openclaw-rss
+# @ipocket/clawrss
 
 [English](README.md) | 简体中文
 
@@ -6,7 +6,7 @@
 
 ## 插件标识
 
-- npm package: `@clawrss/openclaw-rss`
+- npm package: `@ipocket/clawrss`
 - plugin id: `openclaw-rss`
 - 默认 SQLite 路径: `~/.openclaw/clawrss-sync.db`
 
@@ -40,7 +40,7 @@
 把 `clawrss-demo-a` 替换成 ClawRSS iOS App 中显示的真实 workspace ID。
 
 ```bash
-WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && openclaw plugins install @clawrss/openclaw-rss@latest && openclaw plugins enable openclaw-rss && openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.openclaw-rss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000" && openclaw gateway restart
+WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && openclaw plugins install @ipocket/clawrss@latest && openclaw plugins enable openclaw-rss && openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.openclaw-rss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000" && openclaw gateway restart
 ```
 
 ## 一行安装（release tgz）
@@ -65,7 +65,7 @@ openclaw gateway restart
 把 `<workspaceID>` 替换成 ClawRSS iOS App 中显示的真实值。
 
 ```text
-请在当前 OpenClaw 网关环境中安装并配置 ClawRSS。要求如下：1. 安装并启用插件 `@clawrss/openclaw-rss`，插件 id 是 `openclaw-rss`。2. 设置 `plugins.entries.openclaw-rss.config.dbPath` 为 `~/.openclaw/clawrss-sync.db`。3. 设置 `plugins.entries.openclaw-rss.config.pushRelayBaseURL` 为 `https://push.ipocket.xyz`。4. 设置 `plugins.entries.openclaw-rss.config.pushAppID` 为 `<workspaceID>`。5. 重启 gateway。6. 通过调用 `openclaw_push_get_status` 并传入 `{ "namespace": "<workspaceID>" }` 验证配置成功。7. 从现在开始，所有 ClawRSS tool 调用和未来的 cron job 都必须带 `namespace = "<workspaceID>"`，其中 `openclaw_rss_pull` 和 `openclaw_rss_mark` 还必须把同一个值同时用作 `consumer`。8. 不要在这一步创建 cron job，只做安装、配置和验证。执行后请返回安装状态、启用状态、dbPath、pushRelayBaseURL、workspaceID 和验证结果。
+请在当前 OpenClaw 网关环境中安装并配置 ClawRSS。要求如下：1. 安装并启用插件 `@ipocket/clawrss`，插件 id 是 `openclaw-rss`。2. 设置 `plugins.entries.openclaw-rss.config.dbPath` 为 `~/.openclaw/clawrss-sync.db`。3. 设置 `plugins.entries.openclaw-rss.config.pushRelayBaseURL` 为 `https://push.ipocket.xyz`。4. 设置 `plugins.entries.openclaw-rss.config.pushAppID` 为 `<workspaceID>`。5. 重启 gateway。6. 通过调用 `openclaw_push_get_status` 并传入 `{ "namespace": "<workspaceID>" }` 验证配置成功。7. 从现在开始，所有 ClawRSS tool 调用和未来的 cron job 都必须带 `namespace = "<workspaceID>"`，其中 `openclaw_rss_pull` 和 `openclaw_rss_mark` 还必须把同一个值同时用作 `consumer`。8. 不要在这一步创建 cron job，只做安装、配置和验证。执行后请返回安装状态、启用状态、dbPath、pushRelayBaseURL、workspaceID 和验证结果。
 ```
 
 ## 文档

@@ -16,7 +16,7 @@ Use this skill when the user asks to:
 
 Map the user request to this plugin:
 
-- package: `@clawrss/openclaw-rss`
+- package: `@ipocket/clawrss`
 - plugin id: `openclaw-rss`
 
 Do not substitute a different package unless the user explicitly asks for a different source.
@@ -28,7 +28,7 @@ When command execution is available on the Gateway host:
 1. Install the plugin:
 
 ```bash
-openclaw plugins install @clawrss/openclaw-rss
+openclaw plugins install @ipocket/clawrss
 ```
 
 2. Enable it:
@@ -105,6 +105,6 @@ If install succeeds but the tools are missing:
 
 ## Guardrails
 
-- Use `@clawrss/openclaw-rss`, not a guessed package name.
+- Use `@ipocket/clawrss`, not a guessed package name.
 - Do not install from a GitHub URL unless the user explicitly asks for a local or archive-based install path.
 - Do not claim success without checking the command result.

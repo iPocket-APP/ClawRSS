@@ -15,7 +15,7 @@ Its purpose is to make the intent unambiguous when a user says things like:
 If the user asks to install **ClawRSS** in OpenClaw, the default plugin mapping is:
 
 - product name: `ClawRSS`
-- npm package: `@clawrss/openclaw-rss`
+- npm package: `@ipocket/clawrss`
 - plugin id: `openclaw-rss`
 
 ClawRSS is now workspace-based.
@@ -33,7 +33,7 @@ OpenClaw plugin installs should use the npm package when available.
 Preferred command:
 
 ```bash
-openclaw plugins install @clawrss/openclaw-rss
+openclaw plugins install @ipocket/clawrss
 openclaw plugins enable openclaw-rss
 openclaw gateway restart
 ```
@@ -164,7 +164,7 @@ openclaw gateway restart
 
 When the user asks to install ClawRSS:
 
-1. Prefer the npm package `@clawrss/openclaw-rss`.
+1. Prefer the npm package `@ipocket/clawrss`.
 2. Enable plugin id `openclaw-rss`.
 3. Reuse the workspace ID from the user's ClawRSS app or copied setup prompt. If the workspace is missing, ask for it instead of silently using a global shared value.
 4. Set `plugins.entries.openclaw-rss.config.dbPath` if not already configured.
@@ -188,9 +188,9 @@ For best search results, keep these exact strings in public documentation:
 
 - `ClawRSS`
 - `OpenClaw plugin`
-- `@clawrss/openclaw-rss`
+- `@ipocket/clawrss`
 - `openclaw-rss`
-- `openclaw plugins install @clawrss/openclaw-rss`
+- `openclaw plugins install @ipocket/clawrss`
 
 ## Important limitation
 

@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
       id-token: write
     steps:
       - name: Checkout
@@ -19,8 +18,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+          node-version: "24"
+          cache: "npm"
 
       - name: Install
         run: npm ci
@@ -28,17 +27,15 @@ jobs:
       - name: Verify
         run: npm run check
 
-      - name: Publish npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Pack tgz
+      - name: Pack release tarball
         run: |
           mkdir -p dist
           npm pack --pack-destination dist
           TGZ=$(ls dist/*.tgz | head -n 1)
           cp "$TGZ" dist/openclaw-rss.tgz
+
+      - name: Publish npm
+        run: npm publish --access public --provenance
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2

@@ -27,7 +27,7 @@ Plugin Name — short description npm: `@scope/package` repo: `https://github.co
 Replace the GitHub URL below with the real public repository URL before opening the PR.
 
 ```text
-ClawRSS — Sync RSS/article records for ClawRSS, persist digests in SQLite, and deliver Apple push notifications through OpenClaw tools. npm: `@clawrss/openclaw-rss` repo: `https://github.com/<org>/openclaw-rss-plugin` install: `openclaw plugins install @clawrss/openclaw-rss`
+ClawRSS — Sync RSS/article records for ClawRSS, persist digests in SQLite, and deliver Apple push notifications through OpenClaw tools. npm: `@ipocket/clawrss` repo: `https://github.com/<org>/openclaw-rss-plugin` install: `openclaw plugins install @ipocket/clawrss`
 ```
 
 ## Suggested PR note
@@ -35,12 +35,12 @@ ClawRSS — Sync RSS/article records for ClawRSS, persist digests in SQLite, and
 Use this as the PR body or the summary comment on the OpenClaw docs repo:
 
 ```markdown
-Add `@clawrss/openclaw-rss` to the Community plugins page.
+Add `@ipocket/clawrss` to the Community plugins page.
 
 - Plugin name: ClawRSS
-- npm package: `@clawrss/openclaw-rss`
+- npm package: `@ipocket/clawrss`
 - Repository: `https://github.com/<org>/openclaw-rss-plugin`
-- Install command: `openclaw plugins install @clawrss/openclaw-rss`
+- Install command: `openclaw plugins install @ipocket/clawrss`
 
 The plugin provides:
 
@@ -55,14 +55,14 @@ The repository includes setup documentation and active maintenance.
 
 Before submitting the PR, make sure these are true:
 
-1. `@clawrss/openclaw-rss` is published on npm.
+1. `@ipocket/clawrss` is published on npm.
 2. The GitHub repository is public.
 3. The repository has install and usage docs.
 4. Issues are enabled on the repository.
 5. The install command works:
 
 ```bash
-openclaw plugins install @clawrss/openclaw-rss
+openclaw plugins install @ipocket/clawrss
 openclaw plugins enable openclaw-rss
 openclaw gateway restart
 ```
@@ -72,7 +72,7 @@ openclaw gateway restart
 The OpenClaw plugins CLI treats npm specs as registry-only package specs. Use the explicit scoped package name:
 
 ```bash
-openclaw plugins install @clawrss/openclaw-rss
+openclaw plugins install @ipocket/clawrss
 ```
 
 Do not rely on a bare unscoped name for this plugin.
