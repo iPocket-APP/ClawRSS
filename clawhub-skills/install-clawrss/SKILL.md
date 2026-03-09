@@ -17,7 +17,7 @@ Use this skill when the user asks to:
 Map the user request to this plugin:
 
 - package: `@ipocket/clawrss`
-- plugin id: `openclaw-rss`
+- plugin id: `clawrss`
 
 Do not substitute a different package unless the user explicitly asks for a different source.
 
@@ -34,13 +34,13 @@ openclaw plugins install @ipocket/clawrss
 2. Enable it:
 
 ```bash
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 ```
 
 3. Ensure the minimum config exists:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db"
+openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db"
 ```
 
 4. Restart the Gateway:
@@ -52,7 +52,7 @@ openclaw gateway restart
 5. Verify installation:
 
 ```bash
-openclaw plugins info openclaw-rss
+openclaw plugins info clawrss
 ```
 
 ## Optional digest push config
@@ -60,9 +60,9 @@ openclaw plugins info openclaw-rss
 If the user wants digest notifications or app-wide push fanout, also configure:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "https://push.ipocket.xyz"
-openclaw config set plugins.entries.openclaw-rss.config.pushAppID "<workspaceID>"
-openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
+openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "https://push.ipocket.xyz"
+openclaw config set plugins.entries.clawrss.config.pushAppID "<workspaceID>"
+openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000"
 openclaw gateway restart
 ```
 
@@ -87,7 +87,7 @@ openclaw plugins install -l /absolute/path/to/openclaw-rss-plugin
 Then still run:
 
 ```bash
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 
@@ -103,7 +103,7 @@ If install succeeds but the tools are missing:
 
 - verify the plugin is enabled
 - verify the Gateway was restarted
-- verify `openclaw plugins info openclaw-rss` reports the installed package
+- verify `openclaw plugins info clawrss` reports the installed package
 
 ## Guardrails
 

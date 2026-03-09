@@ -70,12 +70,12 @@ Replace the file name below with the actual `.tgz` created in `dist/`.
 
 ```bash
 openclaw plugins install /Users/sunday/Development/openclaw-rss-plugin/dist/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 ```
 
 Important behavior:
 
-- if `openclaw-rss` is not installed yet, you can install directly
+- if `clawrss` is not installed yet, you can install directly
 - if the host already has the same plugin directory, OpenClaw will not overwrite it
 - this applies to both local test archives (`.tgz`) and local development installs (`openclaw plugins install -l ...`) because they target the same plugin id and extension directory
 - for deterministic testing, treat local development installs as a clean reinstall whenever you change install source or package type
@@ -88,7 +88,7 @@ Run these checks on the OpenClaw host if you are installing on a remote machine 
 whoami
 echo "$HOME"
 openclaw plugins list
-openclaw plugins info openclaw-rss || true
+openclaw plugins info clawrss || true
 ls -la ~/.openclaw/extensions || true
 ```
 
@@ -96,12 +96,12 @@ What to confirm:
 
 - you are logged in as the same user that runs the OpenClaw gateway
 - `HOME` matches the plugin path you expect
-- you know whether `openclaw-rss` is already installed
+- you know whether `clawrss` is already installed
 
 This matters because OpenClaw installs the plugin under the current user's OpenClaw directory. In your test host, the collision path may look like:
 
 ```text
-/home/admin/.openclaw/extensions/openclaw-rss
+/home/admin/.openclaw/extensions/clawrss
 ```
 
 ### 2b. If install fails with `plugin already exists`
@@ -109,30 +109,30 @@ This matters because OpenClaw installs the plugin under the current user's OpenC
 If you see this error:
 
 ```text
-plugin already exists: /home/admin/.openclaw/extensions/openclaw-rss (delete it first)
+plugin already exists: /home/admin/.openclaw/extensions/clawrss (delete it first)
 ```
 
 OpenClaw is refusing to overwrite the existing plugin directory. In practice, this means the old install must be removed first before reinstalling the new package.
 
 Short answer to the common question "do I need to uninstall the development package first?":
 
-- yes, if the previous install already created `~/.openclaw/extensions/openclaw-rss`
+- yes, if the previous install already created `~/.openclaw/extensions/clawrss`
 - no, only when the plugin is not installed yet
 - when switching between npm, `.tgz`, and `-l` local development installs, use a clean reinstall
 
 Preferred uninstall flow from the official OpenClaw CLI docs:
 
 ```bash
-openclaw plugins uninstall openclaw-rss
+openclaw plugins uninstall clawrss
 openclaw plugins install /home/admin/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 ```
 
 Useful variants:
 
 ```bash
-openclaw plugins uninstall openclaw-rss --dry-run
-openclaw plugins uninstall openclaw-rss --keep-files
+openclaw plugins uninstall clawrss --dry-run
+openclaw plugins uninstall clawrss --keep-files
 ```
 
 What `uninstall` does:
@@ -140,25 +140,25 @@ What `uninstall` does:
 - removes plugin records from `plugins.entries`
 - removes install metadata from `plugins.installs`
 - removes linked `plugins.load.paths` entries when applicable
-- removes the on-disk plugin directory under `$OPENCLAW_STATE_DIR/extensions/openclaw-rss` by default
+- removes the on-disk plugin directory under `$OPENCLAW_STATE_DIR/extensions/clawrss` by default
 
 Use manual directory deletion only as a fallback when the uninstall command cannot clean up the broken install correctly.
 
 Safe backup-first flow:
 
 ```bash
-mv /home/admin/.openclaw/extensions/openclaw-rss \
-  /home/admin/.openclaw/extensions/openclaw-rss.bak.$(date +%Y%m%d-%H%M%S)
+mv /home/admin/.openclaw/extensions/clawrss \
+  /home/admin/.openclaw/extensions/clawrss.bak.$(date +%Y%m%d-%H%M%S)
 openclaw plugins install /home/admin/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 ```
 
 Hard delete flow:
 
 ```bash
-rm -rf /home/admin/.openclaw/extensions/openclaw-rss
+rm -rf /home/admin/.openclaw/extensions/clawrss
 openclaw plugins install /home/admin/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 ```
 
 Notes:
@@ -169,16 +169,16 @@ Notes:
 
 ### 2c. Full clean reinstall example on a remote test host
 
-If your package was uploaded to the test machine as `/home/admin/ipocket-openclaw-rss-2026.2.27.tgz`, the full flow is:
+If your package was uploaded to the test machine as `/home/admin/ipocket-clawrss-2026.3.10.tgz`, the full flow is:
 
 ```bash
 whoami
 echo "$HOME"
-ls -l /home/admin/ipocket-openclaw-rss-2026.2.27.tgz
-openclaw plugins uninstall openclaw-rss
-openclaw plugins install /home/admin/ipocket-openclaw-rss-2026.2.27.tgz
-openclaw plugins enable openclaw-rss
-openclaw plugins info openclaw-rss
+ls -l /home/admin/ipocket-clawrss-2026.3.10.tgz
+openclaw plugins uninstall clawrss
+openclaw plugins install /home/admin/ipocket-clawrss-2026.3.10.tgz
+openclaw plugins enable clawrss
+openclaw plugins info clawrss
 openclaw gateway restart
 ```
 
@@ -189,7 +189,7 @@ Use this when you want a deterministic test install and do not care about keepin
 At minimum, set the SQLite path:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db"
+openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db"
 ```
 
 ### Recommended config for digest fanout testing
@@ -199,9 +199,9 @@ This is the preferred setup for the new digest workflow because `openclaw_push_n
 Use the same value for `pushAppID` as the workspace ID you selected above.
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "https://push.ipocket.xyz"
-openclaw config set plugins.entries.openclaw-rss.config.pushAppID "clawrss-demo-a"
-openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
+openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "https://push.ipocket.xyz"
+openclaw config set plugins.entries.clawrss.config.pushAppID "clawrss-demo-a"
+openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000"
 ```
 
 ### Optional fallback config for single-device push testing
@@ -209,7 +209,7 @@ openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
 If you want to test the older single-device push mode instead of app-wide fanout, set `pushTargetURL`.
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushTargetURL "https://push.ipocket.xyz/p/<deviceKey>"
+openclaw config set plugins.entries.clawrss.config.pushTargetURL "https://push.ipocket.xyz/p/<deviceKey>"
 ```
 
 Notes:
@@ -358,11 +358,11 @@ npm run check
 npm run pack:release
 scp dist/<package-name>.tgz <host>:/home/admin/
 ssh <host>
-openclaw plugins uninstall openclaw-rss
+openclaw plugins uninstall clawrss
 openclaw plugins install /home/admin/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
-openclaw plugins info openclaw-rss
+openclaw plugins info clawrss
 ```
 
 ## Common issues
@@ -371,7 +371,7 @@ openclaw plugins info openclaw-rss
 
 Check:
 
-- the plugin was enabled with `openclaw plugins enable openclaw-rss`
+- the plugin was enabled with `openclaw plugins enable clawrss`
 - the gateway was restarted after install
 - the package was built from the latest local source
 
@@ -381,25 +381,25 @@ This means the target plugin directory already exists and OpenClaw will not over
 
 For test installs, answer the question "should I uninstall the development package first?" like this:
 
-- yes, if `~/.openclaw/extensions/openclaw-rss` already exists
+- yes, if `~/.openclaw/extensions/clawrss` already exists
 - yes, if you are switching from `-l` local install to `.tgz`
 - yes, if you are switching from npm install to local development package
-- no, if this is the first install and no existing `openclaw-rss` directory is present
+- no, if this is the first install and no existing `clawrss` directory is present
 
 Fix:
 
-- prefer `openclaw plugins uninstall openclaw-rss`
+- prefer `openclaw plugins uninstall clawrss`
 - if uninstall cannot clean it up, remove or move the old directory manually
 - reinstall from the new `.tgz`
-- run `openclaw plugins info openclaw-rss`
+- run `openclaw plugins info clawrss`
 - restart the gateway
 
 Example:
 
 ```bash
-openclaw plugins uninstall openclaw-rss
+openclaw plugins uninstall clawrss
 openclaw plugins install /home/admin/<package-name>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 

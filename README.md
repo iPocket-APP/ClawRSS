@@ -7,8 +7,14 @@ OpenClaw plugin that stores ClawRSS sync data in SQLite, keeps feed and digest d
 ## Plugin Identity
 
 - npm package: `@ipocket/clawrss`
-- plugin id: `openclaw-rss`
+- plugin id: `clawrss`
 - default SQLite path: `~/.openclaw/clawrss-sync.db`
+
+Legacy note:
+- older installs may still use plugin id `openclaw-rss`
+- this package now uses plugin id `clawrss`
+- there is no runtime fallback for `openclaw-rss`
+- when upgrading an older Gateway install, remove the legacy `openclaw-rss` entry and move config to `plugins.entries.clawrss.config.*`
 
 ## Workspace Model
 
@@ -40,13 +46,13 @@ This plugin is workspace-based.
 Replace `clawrss-demo-a` with the real workspace ID shown in the ClawRSS iOS app.
 
 ```bash
-WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && openclaw plugins install @ipocket/clawrss@latest && openclaw plugins enable openclaw-rss && openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.openclaw-rss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000" && openclaw gateway restart
+WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && openclaw plugins install @ipocket/clawrss@latest && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
 ```
 
 ## One-Line Setup (release tgz)
 
 ```bash
-WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/openclaw-rss-plugin/releases/latest/download/openclaw-rss.tgz" -o /tmp/openclaw-rss.tgz && openclaw plugins install /tmp/openclaw-rss.tgz && openclaw plugins enable openclaw-rss && openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.openclaw-rss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000" && openclaw gateway restart
+WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/openclaw-rss-plugin/releases/latest/download/openclaw-rss.tgz" -o /tmp/openclaw-rss.tgz && openclaw plugins install /tmp/openclaw-rss.tgz && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
 ```
 
 ## Legacy Single-Device Push Fallback
@@ -54,7 +60,7 @@ WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && cu
 If you are only testing one device and do not want app-wide fanout yet, you can configure a direct push URL instead:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushTargetURL "https://push.ipocket.xyz/p/<deviceKey>"
+openclaw config set plugins.entries.clawrss.config.pushTargetURL "https://push.ipocket.xyz/p/<deviceKey>"
 openclaw gateway restart
 ```
 
@@ -65,7 +71,7 @@ This is a compatibility path for manual testing. The recommended setup is still 
 Replace `<workspaceID>` with the exact value shown in the ClawRSS iOS app.
 
 ```text
-Please install and configure ClawRSS in the current OpenClaw environment. Requirements: 1. Install and enable the plugin `@ipocket/clawrss`; the plugin id is `openclaw-rss`. 2. Set `plugins.entries.openclaw-rss.config.dbPath` to `~/.openclaw/clawrss-sync.db`. 3. Set `plugins.entries.openclaw-rss.config.pushRelayBaseURL` to `https://push.ipocket.xyz`. 4. Set `plugins.entries.openclaw-rss.config.pushAppID` to `<workspaceID>`. 5. Restart the gateway. 6. Verify the setup by calling `openclaw_push_get_status` with `{ "namespace": "<workspaceID>" }`. 7. From now on, every ClawRSS tool call and every future cron job must include `namespace = "<workspaceID>"`; `openclaw_rss_pull` and `openclaw_rss_mark` must also use the same value as `consumer`. 8. Do not create any cron job in this step; this prompt is only for install, config, and verification. Return the install status, enabled status, dbPath, pushRelayBaseURL, workspaceID, and verification result.
+Please install and configure ClawRSS in the current OpenClaw environment. Requirements: 1. Install and enable the plugin `@ipocket/clawrss`; the plugin id is `clawrss`. 2. Set `plugins.entries.clawrss.config.dbPath` to `~/.openclaw/clawrss-sync.db`. 3. Set `plugins.entries.clawrss.config.pushRelayBaseURL` to `https://push.ipocket.xyz`. 4. Set `plugins.entries.clawrss.config.pushAppID` to `<workspaceID>`. 5. Restart the gateway. 6. Verify the setup by calling `openclaw_push_get_status` with `{ "namespace": "<workspaceID>" }`. 7. From now on, every ClawRSS tool call and every future cron job must include `namespace = "<workspaceID>"`; `openclaw_rss_pull` and `openclaw_rss_mark` must also use the same value as `consumer`. 8. Do not create any cron job in this step; this prompt is only for install, config, and verification. Return the install status, enabled status, dbPath, pushRelayBaseURL, workspaceID, and verification result.
 ```
 
 ## Docs

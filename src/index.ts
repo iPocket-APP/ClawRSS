@@ -13,7 +13,7 @@ import { pushNotifyDefinition, runPushNotify } from "./tools/pushNotify.js";
 import { saveDigestDefinition, runSaveDigest } from "./tools/saveDigest.js";
 import { upsertFeedDefinition, runUpsertFeed } from "./tools/upsertFeed.js";
 
-const PLUGIN_ID = "openclaw-rss";
+const PLUGIN_ID = "clawrss";
 
 type PluginApi = {
   config?: {

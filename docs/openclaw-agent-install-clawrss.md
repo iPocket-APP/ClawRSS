@@ -16,7 +16,13 @@ If the user asks to install **ClawRSS** in OpenClaw, the default plugin mapping 
 
 - product name: `ClawRSS`
 - npm package: `@ipocket/clawrss`
-- plugin id: `openclaw-rss`
+- plugin id: `clawrss`
+
+Legacy migration note:
+
+- older Gateway installs may still exist under plugin id `openclaw-rss`
+- there is no runtime fallback from `openclaw-rss` to `clawrss`
+- when upgrading, migrate that install to `clawrss`, move config to `plugins.entries.clawrss.config.*`, and keep `clawrss` as the only enabled ClawRSS plugin entry
 
 ClawRSS is now workspace-based.
 
@@ -34,7 +40,7 @@ Preferred command:
 
 ```bash
 openclaw plugins install @ipocket/clawrss
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 
@@ -49,15 +55,15 @@ Notes:
 After install, configure the SQLite path:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.dbPath "~/.openclaw/clawrss-sync.db"
+openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db"
 ```
 
 If the user already has a workspace ID, also configure the relay base URL and set `pushAppID` to that same workspace ID:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "https://push.ipocket.xyz"
-openclaw config set plugins.entries.openclaw-rss.config.pushAppID "<workspaceID>"
-openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
+openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "https://push.ipocket.xyz"
+openclaw config set plugins.entries.clawrss.config.pushAppID "<workspaceID>"
+openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000"
 openclaw gateway restart
 ```
 
@@ -66,9 +72,9 @@ openclaw gateway restart
 For app-wide push fanout, use the user's workspace ID as the app fanout bucket:
 
 ```bash
-openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "https://push.ipocket.xyz"
-openclaw config set plugins.entries.openclaw-rss.config.pushAppID "<workspaceID>"
-openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
+openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "https://push.ipocket.xyz"
+openclaw config set plugins.entries.clawrss.config.pushAppID "<workspaceID>"
+openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000"
 openclaw gateway restart
 ```
 
@@ -95,7 +101,7 @@ After installation, verify:
 
 ```bash
 openclaw plugins list
-openclaw plugins info openclaw-rss
+openclaw plugins info clawrss
 ```
 
 If the plugin is loaded correctly, OpenClaw should expose these tool families:
@@ -148,7 +154,7 @@ Examples:
 
 ```bash
 openclaw plugins install /absolute/path/to/openclaw-rss-plugin/dist/<package>.tgz
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 
@@ -156,7 +162,7 @@ Or:
 
 ```bash
 openclaw plugins install -l /absolute/path/to/openclaw-rss-plugin
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 
@@ -165,11 +171,11 @@ openclaw gateway restart
 When the user asks to install ClawRSS:
 
 1. Prefer the npm package `@ipocket/clawrss`.
-2. Enable plugin id `openclaw-rss`.
+2. Enable plugin id `clawrss`.
 3. Reuse the workspace ID from the user's ClawRSS app or copied setup prompt. If the workspace is missing, ask for it instead of silently using a global shared value.
-4. Set `plugins.entries.openclaw-rss.config.dbPath` if not already configured.
-5. Set `plugins.entries.openclaw-rss.config.pushRelayBaseURL` when relay push is intended.
-6. Set `plugins.entries.openclaw-rss.config.pushAppID` to the same workspace ID.
+4. Set `plugins.entries.clawrss.config.dbPath` if not already configured.
+5. Set `plugins.entries.clawrss.config.pushRelayBaseURL` when relay push is intended.
+6. Set `plugins.entries.clawrss.config.pushAppID` to the same workspace ID.
 7. Restart the Gateway.
 8. Verify `openclaw_push_get_status` with that workspace namespace.
 9. From then on, keep using the same workspace namespace in every ClawRSS tool call and every cron job for that user.
@@ -189,7 +195,7 @@ For best search results, keep these exact strings in public documentation:
 - `ClawRSS`
 - `OpenClaw plugin`
 - `@ipocket/clawrss`
-- `openclaw-rss`
+- `clawrss`
 - `openclaw plugins install @ipocket/clawrss`
 
 ## Important limitation

@@ -1,6 +1,6 @@
 # Community Plugins Submission Draft
 
-This file is a ready-to-use draft for submitting `openclaw-rss` to the official OpenClaw `Community plugins` page.
+This file is a ready-to-use draft for submitting `clawrss` to the official OpenClaw `Community plugins` page.
 
 Official reference:
 
@@ -63,7 +63,7 @@ Before submitting the PR, make sure these are true:
 
 ```bash
 openclaw plugins install @ipocket/clawrss
-openclaw plugins enable openclaw-rss
+openclaw plugins enable clawrss
 openclaw gateway restart
 ```
 

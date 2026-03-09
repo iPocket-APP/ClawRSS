@@ -1,13 +1,13 @@
 {
-  "id": "openclaw-rss",
-  "name": "OpenClaw RSS Sync",
+  "id": "clawrss",
+  "name": "ClawRSS",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
       "dbPath": {
         "type": "string",
-        "description": "SQLite file path for openclaw-rss data"
+        "description": "SQLite file path for ClawRSS sync data"
       },
       "defaultLimit": {
         "type": "integer",
@@ -31,7 +31,7 @@
       },
       "pushAppID": {
         "type": "string",
-        "description": "Logical appID registered with the ClawRSS push relay"
+        "description": "Workspace-scoped appID registered with the ClawRSS push relay"
       },
       "pushTimeoutMs": {
         "type": "integer",
@@ -62,7 +62,7 @@
     },
     "pushAppID": {
       "label": "Push App ID",
-      "placeholder": "claw-rss"
+      "placeholder": "<workspaceID>"
     },
     "pushTimeoutMs": {
       "label": "Push Timeout (ms)"

@@ -6,7 +6,7 @@ metadata:
     always: true
     requires:
       config:
-        - plugins.entries.openclaw-rss.enabled
+        - plugins.entries.clawrss.enabled
 ---
 
 # ClawRSS OpenClaw Sync
@@ -15,7 +15,7 @@ metadata:
 
 When the user asks for "latest/new/today/hot/news/trending" information, default to:
 1) web search
-2) save results into openclaw-rss SQLite
+2) save results into the ClawRSS SQLite store
 3) return a concise summary + saved count
 
 This skill is for news retrieval and result persistence.

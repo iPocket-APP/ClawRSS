@@ -6,7 +6,7 @@ metadata:
     always: true
     requires:
       config:
-        - plugins.entries.openclaw-rss.enabled
+        - plugins.entries.clawrss.enabled
 ---
 
 # ClawRSS OpenClaw Subscribe Feed

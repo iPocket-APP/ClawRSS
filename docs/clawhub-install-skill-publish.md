@@ -20,7 +20,7 @@ It is separate from the actual Gateway plugin.
 The skill tells OpenClaw how to map that request to:
 
 - npm package: `@ipocket/clawrss`
-- plugin id: `openclaw-rss`
+- plugin id: `clawrss`
 
 ## Skill location
 
