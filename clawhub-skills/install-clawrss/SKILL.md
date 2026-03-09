@@ -61,10 +61,12 @@ If the user wants digest notifications or app-wide push fanout, also configure:
 
 ```bash
 openclaw config set plugins.entries.openclaw-rss.config.pushRelayBaseURL "https://push.ipocket.xyz"
-openclaw config set plugins.entries.openclaw-rss.config.pushAppID "claw-rss"
+openclaw config set plugins.entries.openclaw-rss.config.pushAppID "<workspaceID>"
 openclaw config set plugins.entries.openclaw-rss.config.pushTimeoutMs "10000"
 openclaw gateway restart
 ```
+
+Use the exact ClawRSS workspace ID for `<workspaceID>`. Do not collapse different users into a shared `claw-rss` bucket.
 
 ## Local development fallback
 
@@ -106,5 +108,6 @@ If install succeeds but the tools are missing:
 ## Guardrails
 
 - Use `@ipocket/clawrss`, not a guessed package name.
+- Reuse the exact ClawRSS workspace ID for `pushAppID`, future `namespace`, and sync `consumer`.
 - Do not install from a GitHub URL unless the user explicitly asks for a local or archive-based install path.
 - Do not claim success without checking the command result.
