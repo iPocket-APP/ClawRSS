@@ -27,7 +27,7 @@ Plugin Name — short description npm: `@scope/package` repo: `https://github.co
 Replace the GitHub URL below with the real public repository URL before opening the PR.
 
 ```text
-ClawRSS — Sync RSS/article records for ClawRSS, persist digests in SQLite, and deliver Apple push notifications through OpenClaw tools. npm: `@ipocket/clawrss` repo: `https://github.com/<org>/openclaw-rss-plugin` install: `openclaw plugins install @ipocket/clawrss`
+ClawRSS — Sync RSS/article records for ClawRSS, persist digests in SQLite, and deliver Apple push notifications through OpenClaw tools. npm: `@ipocket/clawrss` repo: `https://github.com/<org>/clawrss-plugin` install: `openclaw plugins install @ipocket/clawrss`
 ```
 
 ## Suggested PR note
@@ -39,7 +39,7 @@ Add `@ipocket/clawrss` to the Community plugins page.
 
 - Plugin name: ClawRSS
 - npm package: `@ipocket/clawrss`
-- Repository: `https://github.com/<org>/openclaw-rss-plugin`
+- Repository: `https://github.com/<org>/clawrss-plugin`
 - Install command: `openclaw plugins install @ipocket/clawrss`
 
 The plugin provides:

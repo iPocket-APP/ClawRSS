@@ -75,13 +75,13 @@ If the user wants to test a local working tree instead of npm, install from a lo
 Examples:
 
 ```bash
-openclaw plugins install /absolute/path/to/openclaw-rss-plugin/dist/<package>.tgz
+openclaw plugins install /absolute/path/to/clawrss-plugin/dist/<package>.tgz
 ```
 
 Or:
 
 ```bash
-openclaw plugins install -l /absolute/path/to/openclaw-rss-plugin
+openclaw plugins install -l /absolute/path/to/clawrss-plugin
 ```
 
 Then still run:

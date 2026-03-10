@@ -26,8 +26,8 @@ The skill tells OpenClaw how to map that request to:
 
 The standalone skill lives here:
 
-- [SKILL.md](/Users/sunday/Development/openclaw-rss-plugin/clawhub-skills/install-clawrss/SKILL.md)
-- [openai.yaml](/Users/sunday/Development/openclaw-rss-plugin/clawhub-skills/install-clawrss/agents/openai.yaml)
+- [SKILL.md](../clawhub-skills/install-clawrss/SKILL.md)
+- [openai.yaml](../clawhub-skills/install-clawrss/agents/openai.yaml)
 
 ## Before publishing
 
@@ -49,7 +49,7 @@ Run the ClawHub publish command from the skill directory or pass the skill path 
 Example:
 
 ```bash
-clawhub publish /Users/sunday/Development/openclaw-rss-plugin/clawhub-skills/install-clawrss
+clawhub publish /absolute/path/to/clawrss-plugin/clawhub-skills/install-clawrss
 ```
 
 If your ClawHub setup needs metadata flags such as title, slug, or visibility, use your local `clawhub` CLI defaults and publish policy.

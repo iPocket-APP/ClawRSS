@@ -10,12 +10,6 @@
 - plugin id: `clawrss`
 - 默认 SQLite 路径: `~/.openclaw/clawrss-sync.db`
 
-兼容说明：
-- 较早的安装可能仍然使用旧 plugin id `openclaw-rss`
-- 当前 npm 包已切换为 plugin id `clawrss`
-- 运行时不会再回退读取 `openclaw-rss`
-- 升级旧网关安装时，需要移除旧的 `openclaw-rss` entry，并把配置迁移到 `plugins.entries.clawrss.config.*`
-
 ## Workspace 模型
 
 这个插件基于 workspace 工作。
@@ -52,7 +46,7 @@ WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && op
 ## 一行安装（release tgz）
 
 ```bash
-WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/openclaw-rss-plugin/releases/latest/download/openclaw-rss.tgz" -o /tmp/openclaw-rss.tgz && openclaw plugins install /tmp/openclaw-rss.tgz && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
+WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/clawrss-plugin/releases/latest/download/clawrss.tgz" -o /tmp/clawrss.tgz && openclaw plugins install /tmp/clawrss.tgz && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
 ```
 
 ## 旧版单设备 Push 兼容方式

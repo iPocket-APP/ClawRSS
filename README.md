@@ -10,12 +10,6 @@ OpenClaw plugin that stores ClawRSS sync data in SQLite, keeps feed and digest d
 - plugin id: `clawrss`
 - default SQLite path: `~/.openclaw/clawrss-sync.db`
 
-Legacy note:
-- older installs may still use plugin id `openclaw-rss`
-- this package now uses plugin id `clawrss`
-- there is no runtime fallback for `openclaw-rss`
-- when upgrading an older Gateway install, remove the legacy `openclaw-rss` entry and move config to `plugins.entries.clawrss.config.*`
-
 ## Workspace Model
 
 This plugin is workspace-based.
@@ -52,7 +46,7 @@ WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && op
 ## One-Line Setup (release tgz)
 
 ```bash
-WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/openclaw-rss-plugin/releases/latest/download/openclaw-rss.tgz" -o /tmp/openclaw-rss.tgz && openclaw plugins install /tmp/openclaw-rss.tgz && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
+WORKSPACE_ID="clawrss-demo-a" && RELAY_BASE_URL="https://push.ipocket.xyz" && curl -fL "https://github.com/<owner>/clawrss-plugin/releases/latest/download/clawrss.tgz" -o /tmp/clawrss.tgz && openclaw plugins install /tmp/clawrss.tgz && openclaw plugins enable clawrss && openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db" && openclaw config set plugins.entries.clawrss.config.pushRelayBaseURL "$RELAY_BASE_URL" && openclaw config set plugins.entries.clawrss.config.pushAppID "$WORKSPACE_ID" && openclaw config set plugins.entries.clawrss.config.pushTimeoutMs "10000" && openclaw gateway restart
 ```
 
 ## Legacy Single-Device Push Fallback

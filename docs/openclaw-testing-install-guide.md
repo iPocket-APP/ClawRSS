@@ -1,6 +1,6 @@
 # OpenClaw Testing Install Guide
 
-This guide covers the fastest way to install the local `openclaw-rss-plugin` build into OpenClaw for testing.
+This guide covers the fastest way to install the local `clawrss-plugin` build into OpenClaw for testing.
 
 It is written for local development and integration testing, not for public release distribution.
 
@@ -25,7 +25,7 @@ Before you start, make sure the OpenClaw host already has:
 Recommended local checks:
 
 ```bash
-cd /Users/sunday/Development/openclaw-rss-plugin
+cd /absolute/path/to/clawrss-plugin
 npm install
 npm run check
 ```
@@ -57,7 +57,7 @@ For testing, the safest approach is to package the current workspace and install
 ### 1. Build a local package
 
 ```bash
-cd /Users/sunday/Development/openclaw-rss-plugin
+cd /absolute/path/to/clawrss-plugin
 npm run pack:release
 ls -1 dist/*.tgz
 ```
@@ -69,7 +69,7 @@ This creates a local package in `dist/`.
 Replace the file name below with the actual `.tgz` created in `dist/`.
 
 ```bash
-openclaw plugins install /Users/sunday/Development/openclaw-rss-plugin/dist/<package-name>.tgz
+openclaw plugins install /absolute/path/to/clawrss-plugin/dist/<package-name>.tgz
 openclaw plugins enable clawrss
 ```
 
@@ -335,10 +335,10 @@ Expected result:
 When you change plugin code and want OpenClaw to load the new version:
 
 ```bash
-cd /Users/sunday/Development/openclaw-rss-plugin
+cd /absolute/path/to/clawrss-plugin
 npm run check
 npm run pack:release
-openclaw plugins install /Users/sunday/Development/openclaw-rss-plugin/dist/<package-name>.tgz
+openclaw plugins install /absolute/path/to/clawrss-plugin/dist/<package-name>.tgz
 openclaw gateway restart
 ```
 
@@ -347,13 +347,13 @@ If OpenClaw still appears to use old behavior, make sure you actually installed 
 For development packages, assume the safe rule is:
 
 ```text
-old openclaw-rss directory exists -> remove old install first -> install new package -> enable -> restart
+old clawrss directory exists -> remove old install first -> install new package -> enable -> restart
 ```
 
 If the host already has an old test copy installed, use this clean update loop instead:
 
 ```bash
-cd /Users/sunday/Development/openclaw-rss-plugin
+cd /absolute/path/to/clawrss-plugin
 npm run check
 npm run pack:release
 scp dist/<package-name>.tgz <host>:/home/admin/

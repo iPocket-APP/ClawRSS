@@ -12,7 +12,7 @@ import { runPushNotifyDigest } from "../src/tools/pushNotifyDigest.js";
 import { runPushNotify } from "../src/tools/pushNotify.js";
 
 function makeTempDB(): { db: OpenClawRSSDatabase; dbPath: string } {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-rss-plugin-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "clawrss-plugin-"));
   const dbPath = path.join(tempDir, "test.db");
   return { db: new OpenClawRSSDatabase(dbPath), dbPath };
 }
@@ -445,7 +445,7 @@ test("push notify digest sends background then alert through app fanout relay", 
 });
 
 test("legacy pre-workspace database surfaces actionable reset error", async () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-rss-legacy-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "clawrss-legacy-"));
   const dbPath = path.join(tempDir, "legacy.db");
   await writeLegacySchemaDB(dbPath);
 
@@ -458,7 +458,7 @@ test("legacy pre-workspace database surfaces actionable reset error", async () =
     assert.equal(error instanceof Error, true);
     assert.match(
       (error as Error).message,
-      /Legacy openclaw-rss database schema detected\./
+      /Legacy ClawRSS database schema detected\./
     );
     assert.match(
       (error as Error).message,

@@ -248,7 +248,7 @@ function ensureRequiredString(value: unknown, field: string): string {
 
 function schemaResetMessage(dbPath: string, detail: string): string {
   return [
-    "Legacy openclaw-rss database schema detected.",
+    "Legacy ClawRSS database schema detected.",
     detail,
     `Delete the SQLite file at ${dbPath} and restart the plugin.`,
     "This version does not support in-place schema migration."

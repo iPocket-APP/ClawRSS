@@ -18,12 +18,6 @@ If the user asks to install **ClawRSS** in OpenClaw, the default plugin mapping 
 - npm package: `@ipocket/clawrss`
 - plugin id: `clawrss`
 
-Legacy migration note:
-
-- older Gateway installs may still exist under plugin id `openclaw-rss`
-- there is no runtime fallback from `openclaw-rss` to `clawrss`
-- when upgrading, migrate that install to `clawrss`, move config to `plugins.entries.clawrss.config.*`, and keep `clawrss` as the only enabled ClawRSS plugin entry
-
 ClawRSS is now workspace-based.
 
 If the request comes from the ClawRSS iOS app, reuse the exact workspace ID shown in the app or provided in the copied setup prompt.
@@ -153,7 +147,7 @@ If the npm package is unavailable, install from a local tarball or local plugin 
 Examples:
 
 ```bash
-openclaw plugins install /absolute/path/to/openclaw-rss-plugin/dist/<package>.tgz
+openclaw plugins install /absolute/path/to/clawrss-plugin/dist/<package>.tgz
 openclaw plugins enable clawrss
 openclaw gateway restart
 ```
@@ -161,7 +155,7 @@ openclaw gateway restart
 Or:
 
 ```bash
-openclaw plugins install -l /absolute/path/to/openclaw-rss-plugin
+openclaw plugins install -l /absolute/path/to/clawrss-plugin
 openclaw plugins enable clawrss
 openclaw gateway restart
 ```
