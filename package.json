@@ -1,6 +1,6 @@
 {
   "name": "@ipocket/clawrss",
-  "version": "2026.3.11",
+  "version": "2026.3.12-beta.0",
   "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
   "license": "MIT",
   "repository": {
