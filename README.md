@@ -76,7 +76,25 @@ CLI example for `agents.list[0]`:
 openclaw config set agents.list[0].tools.alsoAllow '["web_search","openclaw_push_get_status","openclaw_push_notify","openclaw_push_notify_digest","openclaw_rss_delete_feed","openclaw_rss_mark","openclaw_rss_list_feeds","openclaw_rss_ingest","openclaw_rss_get_digest","openclaw_rss_pull","openclaw_rss_pull_digests","openclaw_rss_save_digest","openclaw_rss_upsert_feed"]' --strict-json
 ```
 
-## One-Line Setup (npm)
+## Setup CLI
+
+The package now ships a dedicated setup command that installs the plugin when needed, patches `openclaw.json` once, enables `clawrss`, and updates `agents.list[0].tools.alsoAllow`.
+
+Recommended command:
+
+```bash
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --restart
+```
+
+Useful variants:
+
+```bash
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --skip-install
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --without-push
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --relay-base-url https://dev-push.ipocket.xyz --restart
+```
+
+## Manual Setup (npm)
 
 Replace `clawrss-demo-a` with the real workspace ID shown in the ClawRSS iOS app.
 

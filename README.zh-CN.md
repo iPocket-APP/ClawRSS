@@ -36,7 +36,25 @@
 - `openclaw_push_notify_digest`
 - `openclaw_push_get_status`
 
-## 一行安装（npm）
+## Setup CLI
+
+这个包现在自带了一个独立的 setup 命令。它会在需要时安装插件、一次性修改 `openclaw.json`、启用 `clawrss`，并更新 `agents.list[0].tools.alsoAllow`。
+
+推荐命令：
+
+```bash
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --restart
+```
+
+常用变体：
+
+```bash
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --skip-install
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --without-push
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --relay-base-url https://dev-push.ipocket.xyz --restart
+```
+
+## 手动安装（npm）
 
 把 `clawrss-demo-a` 替换成 ClawRSS iOS App 中显示的真实 workspace ID。
 

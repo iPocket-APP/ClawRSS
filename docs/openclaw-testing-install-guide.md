@@ -30,6 +30,16 @@ npm install
 npm run check
 ```
 
+## Fast path
+
+The fastest supported setup now is:
+
+```bash
+npx -y @ipocket/clawrss setup --workspace clawrss-demo-a --restart
+```
+
+Use the manual steps below only when you need to inspect each OpenClaw change separately.
+
 ## Choose a workspace first
 
 The current ClawRSS integration is workspace-based.

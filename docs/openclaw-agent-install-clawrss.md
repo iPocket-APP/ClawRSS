@@ -33,9 +33,7 @@ OpenClaw plugin installs should use the npm package when available.
 Preferred command:
 
 ```bash
-openclaw plugins install @ipocket/clawrss
-openclaw plugins enable clawrss
-openclaw gateway restart
+npx -y @ipocket/clawrss setup --workspace <workspaceID> --restart
 ```
 
 Notes:
@@ -44,10 +42,11 @@ Notes:
 - If the Gateway is remote, install the plugin on the remote Gateway host, not only on the local client machine.
 - The ClawRSS plugin now requires `Node.js >= 22.13` because it uses the built-in `node:sqlite` module.
 - OpenClaw plugin installs support npm specs, local folders, and local archives. They do not install arbitrary plugins from a GitHub URL directly.
+- The setup CLI writes `plugins.entries.clawrss.config.*` and merges the required tool allowlist into `agents.list[0].tools.alsoAllow`.
 
 ## Required minimum config
 
-After install, configure the SQLite path:
+If the setup CLI is not available, configure the SQLite path after install:
 
 ```bash
 openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db"
@@ -177,17 +176,12 @@ openclaw gateway restart
 
 When the user asks to install ClawRSS:
 
-1. Prefer the npm package `@ipocket/clawrss`.
-2. Enable plugin id `clawrss`.
-3. Reuse the workspace ID from the user's ClawRSS app or copied setup prompt. If the workspace is missing, ask for it instead of silently using a global shared value.
-4. Set `plugins.entries.clawrss.config.dbPath` if not already configured.
-5. Set `plugins.entries.clawrss.config.pushRelayBaseURL` when relay push is intended.
-6. Set `plugins.entries.clawrss.config.pushAppID` to the same workspace ID.
-7. Set `agents.list[0].tools.alsoAllow` to include the ClawRSS tool set.
-8. Restart the Gateway.
-9. Verify `openclaw_push_get_status` with that workspace namespace.
-10. From then on, keep using the same workspace namespace in every ClawRSS tool call and every cron job for that user.
-11. Report the exact commands executed, the workspace used, whether `agents.list[0].tools.alsoAllow` was updated, and whether install/enable/config/restart/verification succeeded.
+1. Prefer the setup CLI `npx -y @ipocket/clawrss setup --workspace <workspaceID> --restart`.
+2. Reuse the workspace ID from the user's ClawRSS app or copied setup prompt. If the workspace is missing, ask for it instead of silently using a global shared value.
+3. If the setup CLI cannot be used, fall back to manual `openclaw plugins install` plus config patching.
+4. Verify `openclaw_push_get_status` with that workspace namespace.
+5. From then on, keep using the same workspace namespace in every ClawRSS tool call and every cron job for that user.
+6. Report the exact commands executed, the workspace used, whether `agents.list[0].tools.alsoAllow` was updated, and whether install/config/restart/verification succeeded.
 
 If the environment does not allow command execution, return the exact commands the user should run.
 

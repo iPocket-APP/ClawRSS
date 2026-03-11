@@ -13,7 +13,11 @@
   },
   "type": "module",
   "main": "src/index.ts",
+  "bin": {
+    "clawrss": "./bin/clawrss.js"
+  },
   "files": [
+    "bin",
     "src",
     "scripts",
     "skills",
