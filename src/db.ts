@@ -1,11 +1,8 @@
 import fs from "node:fs";
-import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
-import { createRequire } from "node:module";
-
-import initSqlJs, { type Database as SQLDatabase, type SqlJsStatic } from "sql.js";
+import { DatabaseSync } from "node:sqlite";
 
 import { renderDigestBody, type DigestBodyFormat } from "./digests.js";
 import { fingerprintURL } from "./fingerprint.js";
@@ -128,7 +125,7 @@ export type DigestPullRow = {
   cursor_id: number;
 };
 
-type SQLParam = number | string | Uint8Array | null;
+type SQLParam = number | string | bigint | Uint8Array | Buffer | null;
 
 type ExistingItemRow = {
   title: string;
@@ -185,8 +182,6 @@ type DigestRow = {
   created_at: string;
   updated_at: string;
 };
-
-const require = createRequire(import.meta.url);
 
 const REQUIRED_TABLE_COLUMNS: Record<string, string[]> = {
   openclaw_rss_items: ["namespace", "kind", "title", "url", "url_fingerprint", "discovered_at"],
@@ -294,29 +289,12 @@ function maskDeviceToken(token: string): string {
   return `${token.slice(0, 6)}…${token.slice(-4)}`;
 }
 
-function firstRow<T extends Record<string, unknown>>(db: SQLDatabase, sql: string, params: SQLParam[] = []): T | undefined {
-  const stmt = db.prepare(sql);
-  try {
-    stmt.bind(params);
-    if (!stmt.step()) return undefined;
-    return stmt.getAsObject() as T;
-  } finally {
-    stmt.free();
-  }
+function firstRow<T extends Record<string, unknown>>(db: DatabaseSync, sql: string, params: SQLParam[] = []): T | undefined {
+  return db.prepare(sql).get(...params) as T | undefined;
 }
 
-function allRows<T extends Record<string, unknown>>(db: SQLDatabase, sql: string, params: SQLParam[] = []): T[] {
-  const stmt = db.prepare(sql);
-  try {
-    stmt.bind(params);
-    const rows: T[] = [];
-    while (stmt.step()) {
-      rows.push(stmt.getAsObject() as T);
-    }
-    return rows;
-  } finally {
-    stmt.free();
-  }
+function allRows<T extends Record<string, unknown>>(db: DatabaseSync, sql: string, params: SQLParam[] = []): T[] {
+  return db.prepare(sql).all(...params) as T[];
 }
 
 function mapPushDeviceRow(row: Record<string, unknown>): PushDeviceRow {
@@ -357,17 +335,9 @@ function mapDigestRow(row: Record<string, unknown>): DigestRow {
   };
 }
 
-function locateFile(file: string): string {
-  if (file === "sql-wasm.wasm") {
-    return require.resolve("sql.js/dist/sql-wasm.wasm");
-  }
-  return require.resolve(`sql.js/dist/${file}`);
-}
-
 export class OpenClawRSSDatabase {
   private readonly dbPath: string;
-  private sqlPromise: Promise<SqlJsStatic> | null = null;
-  private dbPromise: Promise<SQLDatabase> | null = null;
+  private db: DatabaseSync | null = null;
   private writeQueue: Promise<void> = Promise.resolve();
 
   constructor(dbPathInput?: string) {
@@ -377,57 +347,41 @@ export class OpenClawRSSDatabase {
 
   async close(): Promise<void> {
     await this.writeQueue;
-    if (!this.dbPromise) return;
-    const db = await this.dbPromise;
+    if (!this.db) return;
+    const db = this.db;
     db.close();
-    this.dbPromise = null;
+    this.db = null;
   }
 
-  private loadSQL(): Promise<SqlJsStatic> {
-    if (!this.sqlPromise) {
-      this.sqlPromise = initSqlJs({ locateFile });
-    }
-    return this.sqlPromise;
-  }
-
-  private async openDatabase(): Promise<SQLDatabase> {
-    if (!this.dbPromise) {
-      this.dbPromise = (async () => {
-        const SQL = await this.loadSQL();
-        const exists = fs.existsSync(this.dbPath);
-        const db = exists
-          ? new SQL.Database(new Uint8Array(await fsp.readFile(this.dbPath)))
-          : new SQL.Database();
-
-        db.run("PRAGMA foreign_keys = ON");
-        try {
-          db.exec(SCHEMA_SQL);
-        } catch (error) {
-          if (exists) {
-            const message = error instanceof Error ? error.message : String(error);
-            throw new Error(
-              schemaResetMessage(
-                this.dbPath,
-                `Existing database file is incompatible with the current schema (${message}).`
-              )
-            );
-          }
-          throw error;
+  private openDatabase(): DatabaseSync {
+    if (!this.db) {
+      const exists = fs.existsSync(this.dbPath);
+      const db = new DatabaseSync(this.dbPath);
+      db.exec("PRAGMA foreign_keys = ON");
+      db.exec("PRAGMA journal_mode = WAL");
+      db.exec("PRAGMA busy_timeout = 5000");
+      try {
+        db.exec(SCHEMA_SQL);
+      } catch (error) {
+        db.close();
+        if (exists) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(
+            schemaResetMessage(
+              this.dbPath,
+              `Existing database file is incompatible with the current schema (${message}).`
+            )
+          );
         }
-        this.assertSchemaCompatibility(db);
-        if (!exists) {
-          await this.persist(db);
-        }
-        return db;
-      })().catch((error) => {
-        this.dbPromise = null;
         throw error;
-      });
+      }
+      this.assertSchemaCompatibility(db);
+      this.db = db;
     }
-    return this.dbPromise;
+    return this.db;
   }
 
-  private assertSchemaCompatibility(db: SQLDatabase) {
+  private assertSchemaCompatibility(db: DatabaseSync) {
     for (const [table, requiredColumns] of Object.entries(REQUIRED_TABLE_COLUMNS)) {
       const rows = allRows<Record<string, unknown>>(db, `PRAGMA table_info(${table})`);
       if (rows.length === 0) {
@@ -445,23 +399,25 @@ export class OpenClawRSSDatabase {
     }
   }
 
-  private async persist(db: SQLDatabase): Promise<void> {
-    const bytes = db.export();
-    const tmpPath = `${this.dbPath}.tmp`;
-    await fsp.writeFile(tmpPath, Buffer.from(bytes));
-    await fsp.rename(tmpPath, this.dbPath);
-  }
-
-  private async withWriteLock<T>(operation: (db: SQLDatabase) => T): Promise<T> {
+  private async withWriteLock<T>(operation: (db: DatabaseSync) => T): Promise<T> {
     let value: T | undefined;
     let failure: unknown;
 
     this.writeQueue = this.writeQueue.then(async () => {
-      const db = await this.openDatabase();
+      const db = this.openDatabase();
+      let didBegin = false;
       try {
+        db.exec("BEGIN IMMEDIATE");
+        didBegin = true;
         value = operation(db);
-        await this.persist(db);
+        db.exec("COMMIT");
+        didBegin = false;
       } catch (error) {
+        if (didBegin) {
+          try {
+            db.exec("ROLLBACK");
+          } catch {}
+        }
         failure = error;
       }
     });
@@ -483,7 +439,7 @@ export class OpenClawRSSDatabase {
     const feedName = (input.feedName ?? "").trim() || canonicalURL;
 
     return this.withWriteLock((db) => {
-      db.run(
+      db.prepare(
         `
         INSERT INTO openclaw_rss_subscriptions
           (namespace, feed_url, feed_name, url_fingerprint, category, source, created_at, updated_at)
@@ -494,17 +450,16 @@ export class OpenClawRSSDatabase {
           category = excluded.category,
           source = excluded.source,
           updated_at = excluded.updated_at
-        `,
-        [
-          namespace,
-          canonicalURL,
-          feedName,
-          fingerprint,
-          input.category?.trim() || null,
-          input.source?.trim() || "ios_manual",
-          now,
-          now,
-        ]
+        `
+      ).run(
+        namespace,
+        canonicalURL,
+        feedName,
+        fingerprint,
+        input.category?.trim() || null,
+        input.source?.trim() || "ios_manual",
+        now,
+        now,
       );
 
       return { upserted: 1, urlFingerprint: fingerprint };
@@ -551,85 +506,75 @@ export class OpenClawRSSDatabase {
       let duplicate = 0;
       let failed = 0;
 
-      try {
-        for (const item of normalized) {
-          try {
-            const urlFingerprint = fingerprintURL(item.url);
-            if (!urlFingerprint) {
-              failed += 1;
-              continue;
-            }
+      for (const item of normalized) {
+        try {
+          const urlFingerprint = fingerprintURL(item.url);
+          if (!urlFingerprint) {
+            failed += 1;
+            continue;
+          }
 
-            const discoveredAt = nowISO();
-            const updatedAt = nowISO();
-            const rawJSON = JSON.stringify(item);
+          const discoveredAt = nowISO();
+          const updatedAt = nowISO();
+          const rawJSON = JSON.stringify(item);
 
-            selectStmt.bind([namespace, urlFingerprint]);
-            const existing = selectStmt.step()
-              ? (selectStmt.getAsObject() as ExistingItemRow)
-              : undefined;
-            selectStmt.reset();
+          const existing = selectStmt.get(namespace, urlFingerprint) as ExistingItemRow | undefined;
 
-            if (!existing) {
-              insertStmt.run([
-                namespace,
-                item.kind,
-                item.title,
-                item.url,
-                urlFingerprint,
-                item.snippet,
-                item.sourceHost,
-                item.score,
-                query,
-                provider,
-                item.publishedAt,
-                discoveredAt,
-                updatedAt,
-                rawJSON,
-              ]);
-              inserted += 1;
-              continue;
-            }
-
-            const changed =
-              existing.title !== item.title ||
-              existing.snippet !== item.snippet ||
-              existing.source_host !== item.sourceHost ||
-              Number(existing.score) !== Number(item.score) ||
-              existing.kind !== item.kind ||
-              (existing.query ?? null) !== query ||
-              (existing.provider ?? null) !== provider ||
-              (existing.published_at ?? null) !== item.publishedAt;
-
-            if (!changed) {
-              duplicate += 1;
-              continue;
-            }
-
-            updateStmt.run([
+          if (!existing) {
+            insertStmt.run(
+              namespace,
               item.kind,
               item.title,
               item.url,
+              urlFingerprint,
               item.snippet,
               item.sourceHost,
               item.score,
               query,
               provider,
               item.publishedAt,
+              discoveredAt,
               updatedAt,
               rawJSON,
-              namespace,
-              urlFingerprint,
-            ]);
-            updated += 1;
-          } catch {
-            failed += 1;
+            );
+            inserted += 1;
+            continue;
           }
+
+          const changed =
+            existing.title !== item.title ||
+            existing.snippet !== item.snippet ||
+            existing.source_host !== item.sourceHost ||
+            Number(existing.score) !== Number(item.score) ||
+            existing.kind !== item.kind ||
+            (existing.query ?? null) !== query ||
+            (existing.provider ?? null) !== provider ||
+            (existing.published_at ?? null) !== item.publishedAt;
+
+          if (!changed) {
+            duplicate += 1;
+            continue;
+          }
+
+          updateStmt.run(
+            item.kind,
+            item.title,
+            item.url,
+            item.snippet,
+            item.sourceHost,
+            item.score,
+            query,
+            provider,
+            item.publishedAt,
+            updatedAt,
+            rawJSON,
+            namespace,
+            urlFingerprint,
+          );
+          updated += 1;
+        } catch {
+          failed += 1;
         }
-      } finally {
-        selectStmt.free();
-        insertStmt.free();
-        updateStmt.free();
       }
 
       return { inserted, updated, duplicate, failed };
@@ -641,7 +586,7 @@ export class OpenClawRSSDatabase {
     defaultLimit: number
   ): Promise<{ results: Array<Pick<PullRow, "title" | "url" | "kind" | "snippet">>; nextCursor: string | null; hasMore: boolean }> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(input.namespace);
     const limit = Math.min(Math.max(Number(input.limit) || defaultLimit, 1), 500);
     const normalizedKind: PullKind = input.kind === "rss" || input.kind === "article" ? input.kind : "all";
@@ -767,7 +712,7 @@ export class OpenClawRSSDatabase {
         [namespace, digestID]
       );
 
-      db.run(
+      db.prepare(
         `
         INSERT INTO openclaw_rss_digests (
           digest_id,
@@ -798,23 +743,22 @@ export class OpenClawRSSDatabase {
           source_json = excluded.source_json,
           metadata_json = excluded.metadata_json,
           updated_at = excluded.updated_at
-        `,
-        [
-          digestID,
-          namespace,
-          jobID,
-          scheduledFor,
-          title,
-          rendered.bodyRaw,
-          rendered.bodyFormat,
-          rendered.renderHTML,
-          rendered.previewText,
-          virtualURL,
-          sourceJSON,
-          metadataJSON,
-          now,
-          now,
-        ]
+        `
+      ).run(
+        digestID,
+        namespace,
+        jobID,
+        scheduledFor,
+        title,
+        rendered.bodyRaw,
+        rendered.bodyFormat,
+        rendered.renderHTML,
+        rendered.previewText,
+        virtualURL,
+        sourceJSON,
+        metadataJSON,
+        now,
+        now,
       );
 
       return {
@@ -851,7 +795,7 @@ export class OpenClawRSSDatabase {
     hasMore: boolean;
   }> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(input.namespace);
     const limit = Math.min(Math.max(Number(input.limit) || defaultLimit, 1), 500);
     const cursor = parseCursor(input.cursor ?? null);
@@ -941,7 +885,7 @@ export class OpenClawRSSDatabase {
     updatedAt: string;
   } | null> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(input.namespace);
     const digestID = ensureRequiredString(input.digestID, "digestID");
     const row = firstRow<Record<string, unknown>>(
@@ -997,17 +941,15 @@ export class OpenClawRSSDatabase {
     }
 
     return this.withWriteLock((db) => {
-      db.run(
+      const result = db.prepare(
         `
         DELETE FROM openclaw_rss_subscriptions
         WHERE namespace = ? AND url_fingerprint = ?
-        `,
-        [namespace, fingerprint]
-      );
+        `
+      ).run(namespace, fingerprint);
 
-      const row = firstRow<{ deleted: number }>(db, "SELECT changes() AS deleted");
       return {
-        deleted: Number(row?.deleted ?? 0),
+        deleted: Number(result.changes),
         urlFingerprint: fingerprint,
       };
     });
@@ -1028,7 +970,7 @@ export class OpenClawRSSDatabase {
     hasMore: boolean;
   }> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(input.namespace);
     const limit = Math.min(Math.max(Number(input.limit) || 200, 1), 500);
     const cursor = parseCursor(input.cursor ?? null);
@@ -1100,16 +1042,15 @@ export class OpenClawRSSDatabase {
     const now = nowISO();
 
     return this.withWriteLock((db) => {
-      db.run(
+      db.prepare(
         `
         INSERT INTO openclaw_rss_sync_state (namespace, consumer, last_cursor, updated_at)
         VALUES (?, ?, ?, ?)
         ON CONFLICT(namespace, consumer) DO UPDATE SET
           last_cursor = excluded.last_cursor,
           updated_at = excluded.updated_at
-        `,
-        [namespace, consumer, input.cursor ?? null, now]
-      );
+        `
+      ).run(namespace, consumer, input.cursor ?? null, now);
 
       return { acknowledged: true, consumer };
     });
@@ -1142,7 +1083,7 @@ export class OpenClawRSSDatabase {
     const now = nowISO();
 
     return this.withWriteLock((db) => {
-      db.run(
+      db.prepare(
         `
         INSERT INTO openclaw_push_devices
           (app_id, installation_id, device_token, token_hash, topic, environment, locale, app_version, build_number, enabled, last_error, created_at, updated_at)
@@ -1158,20 +1099,19 @@ export class OpenClawRSSDatabase {
           enabled = 1,
           last_error = NULL,
           updated_at = excluded.updated_at
-        `,
-        [
-          appID,
-          installationID,
-          deviceToken,
-          tokenHash,
-          topic,
-          environment,
-          normalizeTrimmed(input.locale),
-          normalizeTrimmed(input.appVersion),
-          normalizeTrimmed(input.buildNumber),
-          now,
-          now,
-        ]
+        `
+      ).run(
+        appID,
+        installationID,
+        deviceToken,
+        tokenHash,
+        topic,
+        environment,
+        normalizeTrimmed(input.locale),
+        normalizeTrimmed(input.appVersion),
+        normalizeTrimmed(input.buildNumber),
+        now,
+        now,
       );
 
       return {
@@ -1196,20 +1136,18 @@ export class OpenClawRSSDatabase {
     }
 
     return this.withWriteLock((db) => {
-      db.run(
+      const result = db.prepare(
         `
         UPDATE openclaw_push_devices
         SET enabled = 0,
             updated_at = ?,
             last_error = NULL
         WHERE app_id = ? AND installation_id = ?
-        `,
-        [nowISO(), appID, installationID]
-      );
+        `
+      ).run(nowISO(), appID, installationID);
 
-      const row = firstRow<{ disabled: number }>(db, "SELECT changes() AS disabled");
       return {
-        disabled: Number(row?.disabled ?? 0),
+        disabled: Number(result.changes),
         appID,
         installationID,
       };
@@ -1232,7 +1170,7 @@ export class OpenClawRSSDatabase {
     }>;
   }> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const appID = normalizeAppID(appIDInput);
     const rows = allRows<Record<string, unknown>>(
       db,
@@ -1278,7 +1216,7 @@ export class OpenClawRSSDatabase {
 
   async countEnabledPushDevices(appIDInput?: string): Promise<number> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const appID = normalizeAppID(appIDInput);
     const row = firstRow<{ count: number }>(
       db,
@@ -1300,7 +1238,7 @@ export class OpenClawRSSDatabase {
     environment: PushEnvironment;
   }>> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const appID = normalizeAppID(appIDInput);
     const rows = allRows<Record<string, unknown>>(
       db,
@@ -1352,26 +1290,24 @@ export class OpenClawRSSDatabase {
     }
 
     return this.withWriteLock((db) => {
-      db.run(
+      const result = db.prepare(
         `
         UPDATE openclaw_push_devices
         SET enabled = ?,
             last_error = ?,
             updated_at = ?
         WHERE app_id = ? AND installation_id = ?
-        `,
-        [
-          input.enabled ? 1 : 0,
-          normalizeTrimmed(input.lastError),
-          nowISO(),
-          appID,
-          installationID,
-        ]
+        `
+      ).run(
+        input.enabled ? 1 : 0,
+        normalizeTrimmed(input.lastError),
+        nowISO(),
+        appID,
+        installationID,
       );
 
-      const row = firstRow<{ updated: number }>(db, "SELECT changes() AS updated");
       return {
-        updated: Number(row?.updated ?? 0),
+        updated: Number(result.changes),
         appID,
         installationID,
       };
@@ -1380,7 +1316,7 @@ export class OpenClawRSSDatabase {
 
   async readSyncCursor(input: { namespace?: string; consumer?: string }): Promise<string | null> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(input.namespace);
     const consumer = (input.consumer ?? "claw-rss").trim() || "claw-rss";
     const row = firstRow<{ last_cursor: string | null }>(
@@ -1398,7 +1334,7 @@ export class OpenClawRSSDatabase {
 
   async readItemByFingerprint(urlFingerprint: string, namespaceInput?: string): Promise<ExistingItemRow | undefined> {
     await this.writeQueue;
-    const db = await this.openDatabase();
+    const db = this.openDatabase();
     const namespace = normalizeNamespace(namespaceInput);
     return firstRow<ExistingItemRow>(
       db,

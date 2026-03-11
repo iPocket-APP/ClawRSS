@@ -1,6 +1,6 @@
 {
   "name": "@ipocket/clawrss",
-  "version": "2026.3.10",
+  "version": "2026.3.11",
   "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
   "license": "MIT",
   "repository": {
@@ -24,7 +24,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
   "openclaw": {
     "extensions": [
@@ -38,11 +38,10 @@
     "pack:release": "mkdir -p dist && npm pack --pack-destination dist"
   },
   "dependencies": {
-    "marked": "^16.4.1",
-    "sql.js": "^1.13.0"
+    "marked": "^17.0.4"
   },
   "devDependencies": {
-    "@types/sql.js": "^1.4.9",
+    "@types/node": "^24.5.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

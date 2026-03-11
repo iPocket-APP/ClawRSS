@@ -17,7 +17,7 @@ Use this guide when you want to:
 
 Before you start, make sure the OpenClaw host already has:
 
-- Node.js 20 or newer
+- Node.js 22.13 or newer
 - `openclaw` CLI installed and working
 - a running OpenClaw gateway
 - access to this repository on disk
@@ -192,6 +192,16 @@ At minimum, set the SQLite path:
 openclaw config set plugins.entries.clawrss.config.dbPath "~/.openclaw/clawrss-sync.db"
 ```
 
+### Agent tool allowlist for chat testing
+
+If you plan to call the plugin from a normal OpenClaw chat session, also allow these tools on the primary agent profile:
+
+```bash
+openclaw config set agents.list[0].tools.alsoAllow '["openclaw_push_get_status","openclaw_push_notify","openclaw_push_notify_digest","openclaw_rss_delete_feed","openclaw_rss_mark","openclaw_rss_list_feeds","openclaw_rss_ingest","openclaw_rss_get_digest","openclaw_rss_pull","openclaw_rss_pull_digests","openclaw_rss_save_digest","openclaw_rss_upsert_feed"]' --strict-json
+```
+
+Without this step, `openclaw plugins list` can show `clawrss` as `loaded` while chat calls still fail with `Tool not available`.
+
 ### Recommended config for digest fanout testing
 
 This is the preferred setup for the new digest workflow because `openclaw_push_notify_digest` should normally push to all registered ClawRSS devices through the relay.
@@ -234,6 +244,8 @@ The plugin manifest already exposes the `skills/` folder, so enabling the plugin
 ## Smoke test checklist
 
 After restart, verify the plugin from an OpenClaw chat or test session.
+
+If you changed `agents.list[0].tools.alsoAllow`, start a fresh chat session after restart so the new tool policy is picked up.
 
 ### 1. Verify the plugin can answer status
 

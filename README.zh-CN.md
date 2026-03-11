@@ -9,6 +9,7 @@
 - npm package: `@ipocket/clawrss`
 - plugin id: `clawrss`
 - 默认 SQLite 路径: `~/.openclaw/clawrss-sync.db`
+- 运行时要求: `Node.js >= 22.13`（使用 `node:sqlite`）
 
 ## Workspace 模型
 

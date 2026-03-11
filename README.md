@@ -9,6 +9,7 @@ OpenClaw plugin that stores ClawRSS sync data in SQLite, keeps feed and digest d
 - npm package: `@ipocket/clawrss`
 - plugin id: `clawrss`
 - default SQLite path: `~/.openclaw/clawrss-sync.db`
+- runtime requirement: `Node.js >= 22.13` (`node:sqlite`)
 
 ## Workspace Model
 
@@ -34,6 +35,46 @@ This plugin is workspace-based.
 - `openclaw_push_notify`
 - `openclaw_push_notify_digest`
 - `openclaw_push_get_status`
+
+## Agent Tool Policy
+
+If the active agent uses a restricted tool policy, loading the `clawrss` plugin is not enough by itself. The plugin can show as `loaded` while chat requests still fail with `Tool not available` for `openclaw_rss_*`.
+
+Recommended additive allowlist:
+
+```json
+{
+  "agents": {
+    "list": [
+      {
+        "tools": {
+          "alsoAllow": [
+            "web_search",
+            "openclaw_push_get_status",
+            "openclaw_push_notify",
+            "openclaw_push_notify_digest",
+            "openclaw_rss_delete_feed",
+            "openclaw_rss_mark",
+            "openclaw_rss_list_feeds",
+            "openclaw_rss_ingest",
+            "openclaw_rss_get_digest",
+            "openclaw_rss_pull",
+            "openclaw_rss_pull_digests",
+            "openclaw_rss_save_digest",
+            "openclaw_rss_upsert_feed"
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+CLI example for `agents.list[0]`:
+
+```bash
+openclaw config set agents.list[0].tools.alsoAllow '["web_search","openclaw_push_get_status","openclaw_push_notify","openclaw_push_notify_digest","openclaw_rss_delete_feed","openclaw_rss_mark","openclaw_rss_list_feeds","openclaw_rss_ingest","openclaw_rss_get_digest","openclaw_rss_pull","openclaw_rss_pull_digests","openclaw_rss_save_digest","openclaw_rss_upsert_feed"]' --strict-json
+```
 
 ## One-Line Setup (npm)
 
@@ -65,7 +106,7 @@ This is a compatibility path for manual testing. The recommended setup is still 
 Replace `<workspaceID>` with the exact value shown in the ClawRSS iOS app.
 
 ```text
-Please install and configure ClawRSS in the current OpenClaw environment. Requirements: 1. Install and enable the plugin `@ipocket/clawrss`; the plugin id is `clawrss`. 2. Set `plugins.entries.clawrss.config.dbPath` to `~/.openclaw/clawrss-sync.db`. 3. Set `plugins.entries.clawrss.config.pushRelayBaseURL` to `https://push.ipocket.xyz`. 4. Set `plugins.entries.clawrss.config.pushAppID` to `<workspaceID>`. 5. Restart the gateway. 6. Verify the setup by calling `openclaw_push_get_status` with `{ "namespace": "<workspaceID>" }`. 7. From now on, every ClawRSS tool call and every future cron job must include `namespace = "<workspaceID>"`; `openclaw_rss_pull` and `openclaw_rss_mark` must also use the same value as `consumer`. 8. Do not create any cron job in this step; this prompt is only for install, config, and verification. Return the install status, enabled status, dbPath, pushRelayBaseURL, workspaceID, and verification result.
+Please install and configure ClawRSS in the current OpenClaw environment. Requirements: 1. Install and enable the plugin `@ipocket/clawrss`; the plugin id is `clawrss`. 2. Set `plugins.entries.clawrss.config.dbPath` to `~/.openclaw/clawrss-sync.db`. 3. Set `plugins.entries.clawrss.config.pushRelayBaseURL` to `https://push.ipocket.xyz`. 4. Set `plugins.entries.clawrss.config.pushAppID` to `<workspaceID>`. 5. Set `agents.list[0].tools.alsoAllow` to `["web_search","openclaw_push_get_status","openclaw_push_notify","openclaw_push_notify_digest","openclaw_rss_delete_feed","openclaw_rss_mark","openclaw_rss_list_feeds","openclaw_rss_ingest","openclaw_rss_get_digest","openclaw_rss_pull","openclaw_rss_pull_digests","openclaw_rss_save_digest","openclaw_rss_upsert_feed"]`. 6. Restart the gateway. 7. Verify the setup by calling `openclaw_push_get_status` with `{ "namespace": "<workspaceID>" }`. 8. From now on, every ClawRSS tool call and every future cron job must include `namespace = "<workspaceID>"`; `openclaw_rss_pull` and `openclaw_rss_mark` must also use the same value as `consumer`. 9. Do not create any cron job in this step; this prompt is only for install, config, and verification. Return the install status, enabled status, dbPath, pushRelayBaseURL, workspaceID, whether `agents.list[0].tools.alsoAllow` was updated, and verification result.
 ```
 
 ## Docs

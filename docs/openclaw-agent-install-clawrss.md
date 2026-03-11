@@ -42,6 +42,7 @@ Notes:
 
 - Plugin installs run on the machine hosting the OpenClaw Gateway.
 - If the Gateway is remote, install the plugin on the remote Gateway host, not only on the local client machine.
+- The ClawRSS plugin now requires `Node.js >= 22.13` because it uses the built-in `node:sqlite` module.
 - OpenClaw plugin installs support npm specs, local folders, and local archives. They do not install arbitrary plugins from a GitHub URL directly.
 
 ## Required minimum config
@@ -89,6 +90,16 @@ For sync-oriented calls, use the same workspace value as both:
 
 This is required for workspace-isolated feeds, digests, sync cursors, and push fanout.
 
+## Agent tool allowlist
+
+If the active OpenClaw agent uses a restrictive tool policy, the plugin may be `loaded` but its tools can still be hidden from chat sessions. In that case, update `agents.list[0].tools.alsoAllow` before testing:
+
+```bash
+openclaw config set agents.list[0].tools.alsoAllow '["openclaw_push_get_status","openclaw_push_notify","openclaw_push_notify_digest","openclaw_rss_delete_feed","openclaw_rss_mark","openclaw_rss_list_feeds","openclaw_rss_ingest","openclaw_rss_get_digest","openclaw_rss_pull","openclaw_rss_pull_digests","openclaw_rss_save_digest","openclaw_rss_upsert_feed"]' --strict-json
+```
+
+This is the minimum list that keeps ClawRSS install, sync, digest, and push flows callable from the default agent profile.
+
 ## Verification steps
 
 After installation, verify:
@@ -102,6 +113,8 @@ If the plugin is loaded correctly, OpenClaw should expose these tool families:
 
 - `openclaw_rss_*`
 - `openclaw_push_*`
+
+If chat calls still return `Tool not available`, check `agents.list[0].tools.alsoAllow` before debugging the plugin itself.
 
 Useful smoke tests:
 
@@ -170,10 +183,11 @@ When the user asks to install ClawRSS:
 4. Set `plugins.entries.clawrss.config.dbPath` if not already configured.
 5. Set `plugins.entries.clawrss.config.pushRelayBaseURL` when relay push is intended.
 6. Set `plugins.entries.clawrss.config.pushAppID` to the same workspace ID.
-7. Restart the Gateway.
-8. Verify `openclaw_push_get_status` with that workspace namespace.
-9. From then on, keep using the same workspace namespace in every ClawRSS tool call and every cron job for that user.
-10. Report the exact commands executed, the workspace used, and whether install/enable/config/restart/verification succeeded.
+7. Set `agents.list[0].tools.alsoAllow` to include the ClawRSS tool set.
+8. Restart the Gateway.
+9. Verify `openclaw_push_get_status` with that workspace namespace.
+10. From then on, keep using the same workspace namespace in every ClawRSS tool call and every cron job for that user.
+11. Report the exact commands executed, the workspace used, whether `agents.list[0].tools.alsoAllow` was updated, and whether install/enable/config/restart/verification succeeded.
 
 If the environment does not allow command execution, return the exact commands the user should run.
 

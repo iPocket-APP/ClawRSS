@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
-import initSqlJs from "sql.js";
+import { DatabaseSync } from "node:sqlite";
 
 import { OpenClawRSSDatabase } from "../src/db.js";
+import { fingerprintURL } from "../src/fingerprint.js";
 import { PushRelayClient } from "../src/push/client.js";
 import { runPushNotifyDigest } from "../src/tools/pushNotifyDigest.js";
 import { runPushNotify } from "../src/tools/pushNotify.js";
@@ -18,8 +18,7 @@ function makeTempDB(): { db: OpenClawRSSDatabase; dbPath: string } {
 }
 
 async function writeLegacySchemaDB(dbPath: string) {
-  const SQL = await initSqlJs();
-  const db = new SQL.Database();
+  const db = new DatabaseSync(dbPath);
   db.exec(`
     CREATE TABLE openclaw_rss_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +67,6 @@ async function writeLegacySchemaDB(dbPath: string) {
       updated_at TEXT NOT NULL
     );
   `);
-  fs.writeFileSync(dbPath, Buffer.from(db.export()));
   db.close();
 }
 
@@ -196,11 +194,83 @@ test("upsert -> list -> delete -> list", async () => {
   assert.equal(listed.results[0]?.feedURL, "https://www.v2ex.com/index.xml");
   assert.equal(listed.results[0]?.feedName, "V2EX");
 
+  const pulled = await db.pull({
+    namespace: "workspace-a",
+    consumer: "workspace-a",
+    cursor: null,
+    limit: 10,
+    kind: "rss"
+  }, 50);
+  assert.equal(pulled.results.length, 1);
+  assert.equal(pulled.results[0]?.url, "https://www.v2ex.com/index.xml");
+  assert.equal(pulled.results[0]?.kind, "rss");
+
   const deleted = await db.deleteFeed({ namespace: "workspace-a", feedURL: "https://www.v2ex.com/index.xml" });
   assert.equal(deleted.deleted, 1);
 
   const listedAfterDelete = await db.listFeeds({ namespace: "workspace-a", cursor: null, limit: 200 });
   assert.equal(listedAfterDelete.results.length, 0);
+
+  await db.close();
+});
+
+test("external SQLite writes are visible without restart and preserved by later plugin writes", async () => {
+  const { db, dbPath } = makeTempDB();
+
+  await db.upsertFeed({
+    namespace: "workspace-a",
+    feedURL: "https://example.com/feed-a.xml",
+    feedName: "Feed A",
+    source: "ios_manual",
+  });
+
+  const external = new DatabaseSync(dbPath);
+  external.exec("PRAGMA journal_mode = WAL");
+  const now = "2026-03-10T15:44:37.290Z";
+  external.prepare(`
+    INSERT INTO openclaw_rss_subscriptions
+      (namespace, feed_url, feed_name, url_fingerprint, category, source, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    "workspace-a",
+    "https://example.com/feed-b.xml",
+    "Feed B",
+    fingerprintURL("https://example.com/feed-b.xml"),
+    "AI",
+    "external_test",
+    now,
+    now,
+  );
+  external.close();
+
+  const listedAfterExternalWrite = await db.listFeeds({ namespace: "workspace-a", cursor: null, limit: 200 });
+  assert.equal(listedAfterExternalWrite.results.length, 2);
+  assert.equal(listedAfterExternalWrite.results.some((row) => row.feedURL == "https://example.com/feed-b.xml"), true);
+
+  await db.upsertFeed({
+    namespace: "workspace-a",
+    feedURL: "https://example.com/feed-c.xml",
+    feedName: "Feed C",
+    source: "ios_manual",
+  });
+
+  const inspector = new DatabaseSync(dbPath);
+  const storedFeeds = inspector.prepare(`
+    SELECT feed_url
+    FROM openclaw_rss_subscriptions
+    WHERE namespace = ?
+    ORDER BY feed_url ASC
+  `).all("workspace-a") as Array<{ feed_url: string }>;
+  inspector.close();
+
+  assert.deepEqual(
+    storedFeeds.map((row) => row.feed_url),
+    [
+      "https://example.com/feed-a.xml",
+      "https://example.com/feed-b.xml",
+      "https://example.com/feed-c.xml",
+    ]
+  );
 
   await db.close();
 });
