@@ -1,11 +1,11 @@
 {
   "name": "@ipocket/clawrss",
-  "version": "2026.3.12-beta.0",
+  "version": "2026.3.12",
   "description": "OpenClaw plugin for ClawRSS RSS/article sync backed by SQLite",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iPocket-APP/ClawRSS"
+    "url": "git+https://github.com/iPocket-APP/ClawRSS.git"
   },
   "homepage": "https://github.com/iPocket-APP/ClawRSS",
   "bugs": {
@@ -14,7 +14,7 @@
   "type": "module",
   "main": "src/index.ts",
   "bin": {
-    "clawrss": "./bin/clawrss.js"
+    "clawrss": "bin/clawrss.js"
   },
   "files": [
     "bin",
